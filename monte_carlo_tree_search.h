@@ -2,11 +2,21 @@
 #define MONTE_CARLO_TREE_SEARCH_H
 
 #include "game_state.h"
-#include "mcts_node.h"
 
 #include <functional>
 #include <exception>
 #include <chrono>
+#include <cmath>
+#include <random>
+
+namespace
+{
+	typedef unsigned int uint;
+	typedef std::function<double(double,uint,uint)> Func;
+
+	template<class Move,size_t player_num> struct MctsNode;
+	template<class Move,size_t player_num> class Allocator;
+}
 
 struct CouldNotMoveExpection : std::exception
 {
@@ -50,22 +60,13 @@ std::array<double,player_num>* random_simulation_policy(GameState<Move,player_nu
 	return game_state->CaculateScore();
 }
 
-namespace
-{
-	typedef unsigned int uint;
-	typedef std::function<double(double,uint,uint)> Func;
-
-	template<class Move,size_t player_num> struct MctsNode;
-	template<class Move,size_t player_num> class Allocator;
-}
-
 template<class Move,size_t player_num>
 class MonteCarloTreeSearch
 {
 public:
 	typedef GameState<Move,player_num> State;
 	typedef MctsNode<Move,player_num> Node;
-	typedef function<std::array<double,player_num>*(State *game_state)> SFunc;
+	typedef std::function<std::array<double,player_num>*(State *game_state)> SFunc;
 
 	MonteCarloTreeSearch(const State *game_state);
 
@@ -83,7 +84,7 @@ private:
 	Node *root;
 	Allocator<Move,player_num> allocator;
 	int max_num_of_iteration_;
-	double max_search_time_second_;
+	double max_search_time_;
 	Func selection_policy_;
 	SFunc simulation_policy_;
 	Func next_move_policy_;

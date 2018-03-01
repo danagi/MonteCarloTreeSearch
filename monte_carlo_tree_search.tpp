@@ -1,7 +1,5 @@
-#include <cmath>
 #include <stack>
 #include <algorithm>
-#include <random>
 #include <set>
 
 namespace
@@ -19,7 +17,7 @@ namespace
 		{
 			return value < rhs.value;
 		}
-	}
+	};
 
 	template<class Move,size_t player_num>
 	struct MctsNode
@@ -35,7 +33,7 @@ namespace
 
 		MctsNode(const State *game_state)
 		{
-			init(game_state);
+			Init(game_state);
 		}
 		~MctsNode()
 		{
@@ -50,8 +48,8 @@ namespace
 
 		void Init(const State *game_state)
 		{
-			this.game_state = game_state->Clone();
-			legal_moves = this.game_state->GenerateAllLegalMoves();
+			this->game_state = game_state->Clone();
+			legal_moves = this->game_state->GenerateAllLegalMoves();
 			if(!game_state->IsEnd() && legal_moves->empty())
 			{
 				throw CouldNotMoveExpection();
@@ -77,19 +75,19 @@ namespace
 		std::stack<Node*> pool;
 
 	public:
-		Node* NewNode(const State* game_state)
+		Node* NewNode(const GameState<Move,player_num> *game_state)
 		{
 			if(pool.empty())return new Node(game_state);
 			auto p = pool.top();
 			pool.pop();
 			for(auto& edge:p->edges)
 			{
-				Recycle(edges.son);
+				Recycle(edge.son);
 			}
 			p->Init(game_state);
 			return p;
 		}
-		void Recycle(Node* node)
+		void Recycle(Node *node)
 		{
 			node->Recycle();
 			pool.push(node);
@@ -102,7 +100,7 @@ namespace
 				pool.pop();
 			}
 		}
-	}
+	};
 }
 
 template<class Move,size_t player_num>
@@ -110,10 +108,10 @@ MonteCarloTreeSearch<Move,player_num>::MonteCarloTreeSearch(const State *game_st
 {
 	root = allocator.NewNode(game_state);
 	max_num_of_iteration_ = kInitMaxNumOfIteration;
-	max_search_time_second_ = kInitMaxSearchTime;
+	max_search_time_ = kInitMaxSearchTime;
 	selection_policy_ = ucb1_selection_policy;
 	next_move_policy_ = max_visit_count_policy;
-	simulation_policy_ = random_simulation_policy;
+	simulation_policy_ = random_simulation_policy<Move,player_num>;
 }
 
 template<class Move,size_t player_num>
@@ -148,7 +146,7 @@ void MonteCarloTreeSearch<Move,player_num>::set_simulation_policy(SFunc simulati
 }
 
 template<class Move,size_t player_num>
-void MonteCarloTreeSearch<Move,player_num>::set_next_move_policy(Func next_move_policy);
+void MonteCarloTreeSearch<Move,player_num>::set_next_move_policy(Func next_move_policy)
 {
 	next_move_policy_ = next_move_policy;
 }
@@ -192,9 +190,9 @@ std::array<double,player_num>* MonteCarloTreeSearch<Move,player_num>::Search(Nod
 	{
 		return Simulate(node);
 	}
-	Node *next_node = std::nullptr;
+	Node *next_node = nullptr;
 	Move move;
-	std::array<double,player_num>* scores = std::nullptr;
+	std::array<double,player_num>* scores = nullptr;
 	if(node->legal_moves->empty())
 	{
 		auto iter = prev(node->edges.end());
@@ -228,7 +226,7 @@ Move MonteCarloTreeSearch<Move,player_num>::SearchNextMove() const
 	{
 		throw ShouldNotMoveExpection();
 	}
-	using std::chrono;
+	using namespace std::chrono;
 	auto start = system_clock::now();
 	for(size_t i = 0;;++i)
 	{
