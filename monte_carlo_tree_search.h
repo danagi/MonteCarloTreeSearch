@@ -78,7 +78,7 @@ public:
 	void set_next_move_policy(Func next_move_policy);
 
 	void Play(Move move);
-	Move SearchNextMove() const;
+	Move SearchNextMove();
 
 private:
 	Node *root;
@@ -90,7 +90,7 @@ private:
 	Func next_move_policy_;
 
 	std::array<double,player_num>* Simulate(Node *node) const;
-	std::array<double,player_num>* Search(Node *node) const;
+	std::array<double,player_num>* Search(Node *node);
 };
 
 #include "monte_carlo_tree_search.tpp"

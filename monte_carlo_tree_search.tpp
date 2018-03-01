@@ -35,10 +35,6 @@ namespace
 		{
 			Init(game_state);
 		}
-		~MctsNode()
-		{
-			Recycle();
-		}
 
 		void Recycle()
 		{
@@ -62,7 +58,7 @@ namespace
 		void Update(const std::array<double,player_num> *scores)
 		{
 			++simulation_num;
-			winning_score += scores->at(game_state->get_current_player());
+			winning_score += scores->at(game_state->get_previous_player());
 		}
 	};
 
@@ -159,7 +155,7 @@ void MonteCarloTreeSearch<Move,player_num>::Play(Move move)
 		throw ShouldNotMoveExpection();
 	}
 	auto iter = std::find_if(root->edges.begin(),root->edges.end(),
-		[&](const std::multiset<MctsEdge<Move,player_num>>& son){return son.move == move;});
+		[&](const MctsEdge<Move,player_num>& son){return son.move == move;});
 	if(iter == root->edges.end())
 	{
 		auto game_state = root->game_state->Clone();
@@ -184,7 +180,7 @@ std::array<double,player_num>* MonteCarloTreeSearch<Move,player_num>::Simulate(N
 }
 
 template<class Move,size_t player_num>
-std::array<double,player_num>* MonteCarloTreeSearch<Move,player_num>::Search(Node *node) const
+std::array<double,player_num>* MonteCarloTreeSearch<Move,player_num>::Search(Node *node)
 {
 	if(node->game_state->IsEnd())
 	{
@@ -220,7 +216,7 @@ std::array<double,player_num>* MonteCarloTreeSearch<Move,player_num>::Search(Nod
 }
 
 template<class Move,size_t player_num>
-Move MonteCarloTreeSearch<Move,player_num>::SearchNextMove() const
+Move MonteCarloTreeSearch<Move,player_num>::SearchNextMove()
 {
 	if(root->game_state->IsEnd())
 	{
@@ -248,5 +244,5 @@ Move MonteCarloTreeSearch<Move,player_num>::SearchNextMove() const
 			auto lvalue = next_move_policy_(l.son->winning_score,l.son->simulation_num,root->simulation_num);
 			auto rvalue = next_move_policy_(r.son->winning_score,r.son->simulation_num,root->simulation_num);
 			return lvalue < rvalue;
-		})).first;
+		})).move;
 }
