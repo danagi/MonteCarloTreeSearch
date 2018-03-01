@@ -2,7 +2,7 @@
 #include <stack>
 #include <algorithm>
 #include <random>
-#include <map>
+#include <set>
 
 namespace
 {
@@ -194,12 +194,14 @@ std::array<double,player_num>* MonteCarloTreeSearch<Move,player_num>::Search(Nod
 	}
 	Node *next_node = std::nullptr;
 	Move move;
+	std::array<double,player_num>* scores = std::nullptr;
 	if(node->legal_moves->empty())
 	{
 		auto iter = prev(node->edges.end());
 		next_node = (*iter).son;
 		move = (*iter).move;
 		node->edges.erase(iter);
+		scores = Search(next_node);
 	}
 	else
 	{
@@ -208,8 +210,8 @@ std::array<double,player_num>* MonteCarloTreeSearch<Move,player_num>::Search(Nod
 		node->legal_moves->pop();
 		game_state->Play(move);
 		next_node = allocator.NewNode(game_state);
+		scores = Simulate(next_node);
 	}
-	auto scores = Simulate(next_node);
 	node->Update(scores);
 	MctsEdge<Move,player_num> edge;
 	edge.value = selection_policy_(next_node->winning_score,next_node->simulation_num,node->simulation_num);
