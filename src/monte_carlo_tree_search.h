@@ -30,7 +30,7 @@ struct ShouldNotMoveExpection : std::exception
 
 const int kInfiniteNumOfIteration = 0;
 const double kInfiniteSearchTime = 0.0;
-const int kInitMaxNumOfIteration = 1<<15;
+const int kInitMaxNumOfIteration = 1<<10;
 const int kInitMaxSearchTime = 1000.0;
 
 const auto ucb1_selection_policy = [](double w,uint n,uint N){return w/n+sqrt(2*log(N)/n);};

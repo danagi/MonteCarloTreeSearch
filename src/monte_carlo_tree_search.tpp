@@ -1,6 +1,7 @@
 #include <stack>
 #include <algorithm>
 #include <set>
+#include <type_traits>
 
 namespace
 {
@@ -97,6 +98,17 @@ namespace
 			}
 		}
 	};
+
+	template<class T>
+	struct has_operator_equal
+	{
+	    template<class U>
+	    static auto test(U*) -> decltype(std::declval<U>() == std::declval<U>());
+	    template<typename>
+	    static auto test(...) -> std::false_type;
+
+	    enum{ value = std::is_same<bool, decltype(test<T>(0))>::type::value };
+	};
 }
 
 template<class Move,size_t player_num>
@@ -150,6 +162,7 @@ void MonteCarloTreeSearch<Move,player_num>::set_next_move_policy(Func next_move_
 template<class Move,size_t player_num>
 void MonteCarloTreeSearch<Move,player_num>::Play(Move move)
 {
+	static_assert(has_operator_equal<Move>::value,"class Move should has bool operator== ");
 	if(root->game_state->IsEnd())
 	{
 		throw ShouldNotMoveExpection();
