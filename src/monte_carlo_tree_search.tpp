@@ -239,14 +239,14 @@ Move MonteCarloTreeSearch<Move,player_num>::SearchNextMove()
 	auto start = system_clock::now();
 	for(size_t i = 0;;++i)
 	{
-		if(max_search_time_ > 0)
+		if(max_search_time_ > 0.0)
 		{
 			auto end = system_clock::now();
 			auto duration = duration_cast<milliseconds>(end-start);
-			if(double(duration.count())*milliseconds::period::num/milliseconds::period::den >= max_search_time_)
+			if(duration.count() >= max_search_time_)
 				break;
 		}
-		if(max_num_of_iteration_ > 0.0 && i >= max_num_of_iteration_)
+		if(max_num_of_iteration_ > 0 && i >= max_num_of_iteration_)
 			break;
 		delete Search(root);
 	}

@@ -140,6 +140,7 @@ int main()
 {
 	auto game = new TicTacToe();
 	auto ai = MonteCarloTreeSearch<Move,2>(game);
+	ai.set_max_num_of_iteration(kInfiniteNumOfIteration);
 	while(!game->IsEnd())
 	{
 		Move move = ai.SearchNextMove();
