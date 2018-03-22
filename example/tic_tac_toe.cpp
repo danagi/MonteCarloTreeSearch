@@ -148,5 +148,6 @@ int main()
 		ai.Play(move);
 		game->Draw();
 	}
+	delete game;
 	return 0;
 }
